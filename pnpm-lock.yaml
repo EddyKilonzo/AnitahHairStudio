@@ -125,6 +125,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      ogl:
+        specifier: ^0.0.78
+        version: 0.0.78
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -1525,6 +1528,9 @@ packages:
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
+
+  ogl@0.0.78:
+    resolution: {integrity: sha512-qOoMAToXFuCYUAfcWVeVPwEDIRRRvpEzJmI4rD5gUn/dRxAlSaQnkx11tz8mh1n/SbAXkyp2EqebMe03wXIbHg==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -2961,6 +2967,8 @@ snapshots:
   normalize-range@0.1.2: {}
 
   object-assign@4.1.1: {}
+
+  ogl@0.0.78: {}
 
   picocolors@1.1.1: {}
 
