@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, Instagram } from 'lucide-react';
+import { WhatsAppIcon } from './icons/whatsapp-icon';
+import { InstagramIcon } from './icons/instagram-icon';
 
 export default function Footer() {
   return (
@@ -49,7 +50,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-primary/10 transition-colors text-foreground/70 hover:text-primary text-sm"
               >
-                <MessageCircle className="w-5 h-5" />
+                <WhatsAppIcon className="w-5 h-5" />
                 WhatsApp Channel
               </a>
               <a
@@ -58,7 +59,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-primary/10 transition-colors text-foreground/70 hover:text-primary text-sm"
               >
-                <Instagram className="w-5 h-5" />
+                <InstagramIcon className="w-5 h-5" />
                 Instagram
               </a>
             </div>

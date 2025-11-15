@@ -311,7 +311,7 @@ export default function Hero() {
           {/* Left Side - Content (40% width) */}
           <div 
             ref={contentContainerRef}
-            className="space-y-1.5 sm:space-y-2 md:space-y-3 lg:space-y-5 relative z-10 flex flex-col justify-center mt-0 sm:mt-0 md:mt-1 lg:mt-8" 
+            className="space-y-1.5 sm:space-y-2 md:space-y-3 lg:space-y-5 relative z-10 flex flex-col justify-center mt-4 sm:mt-6 md:mt-8 lg:mt-16" 
             data-aos="fade-up" 
             data-aos-duration="900"
           >
