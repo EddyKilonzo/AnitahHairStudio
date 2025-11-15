@@ -1,7 +1,7 @@
 export function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={className}
+      className={`transition-all duration-300 hover:scale-110 hover:rotate-12 ${className || ''}`}
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"

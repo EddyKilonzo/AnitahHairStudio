@@ -2,38 +2,51 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+// Helper function to generate avatar initials
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
 const allTestimonials = [
   {
     id: 1,
     text: "Anita transformed my hair completely. The attention to detail and her expertise is unmatched. I feel like a new person!",
-    author: "Sarah Mitchell",
+    author: "Tess",
     title: "Hair Care Enthusiast"
   },
   {
     id: 2,
     text: "Best salon experience ever. The team is so welcoming and professional. Highly recommend Anita's Hair Studio!",
-    author: "Emma Rodriguez",
+    author: "Noelle",
     title: "Regular Client"
   },
   {
     id: 3,
     text: "My hair has never looked better. Anita really understands what works for my hair type and gives amazing advice.",
-    author: "Jessica Chen",
-    title: "Beauty Blogger"
+    author: "Gloria",
+    title: "Client"
   },
   {
     id: 4,
     text: "The results exceeded my expectations. Anita listened to my ideas and created exactly what I envisioned. Truly talented!",
-    author: "Michelle Davis",
+    author: "Faith",
     title: "Bride Client"
   },
   {
     id: 5,
     text: "Outstanding service and atmosphere. From consultation to final result, everything was perfection. I'm already booking my next appointment!",
-    author: "Lisa Thompson",
+    author: "Nkirote",
     title: "Loyal Customer"
   },
 ];
+
+// Create duplicated testimonials for seamless infinite loop
+const duplicatedTestimonials = [...allTestimonials, ...allTestimonials, ...allTestimonials];
 
 const videoTestimonials = [
   {
@@ -60,11 +73,9 @@ export default function Testimonials() {
   const [activeTab, setActiveTab] = useState('text');
   const [isHovered, setIsHovered] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [focusedTestimonialIndex, setFocusedTestimonialIndex] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0);
-
-  // Create duplicated testimonials for seamless infinite loop
-  const duplicatedTestimonials = [...allTestimonials, ...allTestimonials, ...allTestimonials];
 
   useEffect(() => {
     if (activeTab !== 'text' || !scrollContainerRef.current) return;
@@ -80,7 +91,7 @@ export default function Testimonials() {
         scrollPositionRef.current += 0.5; // Slow scroll speed (pixels per frame)
         
         // Get the width of one testimonial card (including gap)
-        const firstCard = container.querySelector('div[class*="flex-shrink-0"]') as HTMLElement;
+        const firstCard = container.querySelector('div[class*="shrink-0"]') as HTMLElement;
         if (firstCard) {
           const cardWidth = firstCard.offsetWidth + 24; // card width + gap (gap-6 = 24px)
           const totalWidth = cardWidth * allTestimonials.length;
@@ -168,46 +179,72 @@ export default function Testimonials() {
         {/* Text Testimonials - Infinite Loop Carousel */}
         {activeTab === 'text' && (
           <div
-            className="overflow-hidden"
+            className="overflow-hidden -mx-4 md:-mx-8 pt-8 pb-12"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
             <div
               ref={scrollContainerRef}
-              className="flex gap-6 overflow-x-hidden"
+              className="flex gap-6 overflow-x-hidden pl-8 md:pl-16 pr-8 md:pr-16 items-start pt-4 pb-4"
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
                 willChange: 'scroll-position',
               }}
             >
-              {duplicatedTestimonials.map((testimonial, index) => (
-                <div
-                  key={`${testimonial.id}-${index}`}
-                  className="flex-shrink-0 w-full md:w-1/3 p-6 md:p-8 rounded-2xl bg-background border border-primary/20 hover:border-primary/60 transition-all duration-300 hover:-translate-y-1"
-                  data-aos="fade-up"
-                  data-aos-duration="700"
-                  data-aos-delay={index % 3 * 120}
-                  style={{
-                    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
-                  }}
-                >
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 fill-primary" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
+              {duplicatedTestimonials.map((testimonial, index) => {
+                const isFocused = focusedTestimonialIndex === index;
+                const hasFocus = focusedTestimonialIndex !== null;
+                
+                return (
+                  <div
+                    key={`${testimonial.id}-${index}`}
+                    className="shrink-0"
+                  >
+                    <div
+                      className={`w-[260px] sm:w-[300px] md:w-[320px] lg:w-[360px] p-6 md:p-8 rounded-2xl bg-background border border-primary/20 hover:border-primary/60 transition-all duration-300 ${
+                        hasFocus && !isFocused ? 'blur-sm opacity-60 scale-95' : 'blur-0 opacity-100 hover:-translate-y-1'
+                      }`}
+                      data-aos="fade-up"
+                      data-aos-duration="700"
+                      data-aos-delay={index % 3 * 120}
+                      onMouseEnter={() => setFocusedTestimonialIndex(index)}
+                      onMouseLeave={() => setFocusedTestimonialIndex(null)}
+                      style={{
+                        boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
+                      }}
+                    >
+                    {/* Client Photo Avatar */}
+                    <div className="flex justify-center mb-4">
+                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-bold shadow-md border-2 border-primary/30">
+                        <span>{getInitials(testimonial.author)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-1 mb-4 justify-center">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-5 h-5 fill-primary" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      ))}
+                    </div>
+                    
+                    <p className={`text-foreground/80 mb-6 leading-relaxed text-center transition-all duration-300 ${
+                      hasFocus && !isFocused ? 'text-foreground/50' : ''
+                    }`}>"{testimonial.text}"</p>
+                    
+                    <div className="border-t border-primary/10 pt-4 text-center">
+                      <p className={`font-semibold transition-all duration-300 ${
+                        hasFocus && !isFocused ? 'text-foreground/50' : 'text-foreground'
+                      }`}>{testimonial.author}</p>
+                      <p className={`text-sm transition-all duration-300 ${
+                        hasFocus && !isFocused ? 'text-foreground/40' : 'text-foreground/60'
+                      }`}>{testimonial.title}</p>
+                    </div>
+                    </div>
                   </div>
-                  
-                  <p className="text-foreground/80 mb-6 leading-relaxed">"{testimonial.text}"</p>
-                  
-                  <div className="border-t border-primary/10 pt-4">
-                    <p className="font-semibold text-foreground">{testimonial.author}</p>
-                    <p className="text-sm text-foreground/60">{testimonial.title}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -219,7 +256,7 @@ export default function Testimonials() {
               <div
                 key={video.id}
                 onClick={() => video.videoUrl && setSelectedVideo(video.videoUrl)}
-                className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-[linear-gradient(to_bottom_right,var(--color-primary)/0.2,var(--color-accent)/0.2)] cursor-pointer"
+                className="group relative overflow-hidden rounded-2xl aspect-3/4 bg-[linear-gradient(to_bottom_right,var(--color-primary)/0.2,var(--color-accent)/0.2)] cursor-pointer"
                 data-aos="fade-up"
                 data-aos-duration="700"
                 data-aos-delay={index * 120}

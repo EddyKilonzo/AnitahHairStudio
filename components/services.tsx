@@ -6,8 +6,8 @@ import { Sparkles, Scissors, Palette, Wind } from 'lucide-react';
 const services = [
   {
     icon: Scissors,
-    title: 'Expert Cutting',
-    description: 'Precision cuts tailored to your face shape and style preferences using modern techniques.'
+    title: 'Expert Braiding',
+    description: 'Beautiful braids and intricate styles tailored to your preferences using expert techniques.'
   },
   {
     icon: Palette,
@@ -29,6 +29,7 @@ const services = [
 export default function Services() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [focusedServiceIndex, setFocusedServiceIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -68,24 +69,37 @@ export default function Services() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="glass group rounded-2xl p-6 transition-all duration-300 hover:scale-105"
-              data-aos="fade-up"
-              data-aos-duration="700"
-              data-aos-delay={index * 100}
-              style={{ 
-                boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
-              }}
-            >
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <service.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
+          {services.map((service, index) => {
+            const isFocused = focusedServiceIndex === index;
+            const hasFocus = focusedServiceIndex !== null;
+            
+            return (
+              <div
+                key={index}
+                className={`glass group rounded-2xl p-6 transition-all duration-300 hover:scale-105 ${
+                  hasFocus && !isFocused ? 'blur-sm opacity-60 scale-95' : 'blur-0 opacity-100'
+                }`}
+                data-aos="fade-up"
+                data-aos-duration="700"
+                data-aos-delay={index * 100}
+                onMouseEnter={() => setFocusedServiceIndex(index)}
+                onMouseLeave={() => setFocusedServiceIndex(null)}
+                style={{ 
+                  boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
+                }}
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <service.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
+                </div>
+                <h3 className={`text-lg font-semibold mb-2 transition-all duration-300 ${
+                  hasFocus && !isFocused ? 'text-foreground/50' : ''
+                }`}>{service.title}</h3>
+                <p className={`text-sm transition-all duration-300 ${
+                  hasFocus && !isFocused ? 'text-foreground/40' : 'text-foreground/70'
+                }`}>{service.description}</p>
               </div>
-              <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
-              <p className="text-sm text-foreground/70">{service.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

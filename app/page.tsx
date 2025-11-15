@@ -13,6 +13,12 @@ import Footer from '@/components/footer';
 import Aurora from '@/components/aurora';
 import MobileBottomNav from '@/components/mobile-bottom-nav';
 import FloatingActionButton from '@/components/floating-action-button';
+import { 
+  PageOverlay, 
+  SmoothScroll, 
+  ScrollProgress,
+  SectionTransition 
+} from '@/components/transitions';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
@@ -71,6 +77,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-foreground relative">
+      {/* Transition Components */}
+      <PageOverlay />
+      <SmoothScroll duration={800} easing="ease-in-out" />
+      <ScrollProgress color="oklch(0.67 0.16 290)" height={3} position="top" glow />
+
       {/* Aurora Background - Full page background */}
       {mounted && (
         <div className="fixed inset-0 -z-10" style={{ opacity: isDark ? 0.4 : 0.25 }}>
@@ -93,21 +104,35 @@ export default function Home() {
       )}
       <Navigation isDark={isDark} setIsDark={setIsDark} />
       <main>
-        {/* Hero section with transparent background to show Aurora */}
+        {/* Hero section with transparent background to show Aurora - Always visible */}
         <div className="relative z-10 bg-transparent">
           <Hero />
         </div>
         {/* Other sections with transparent background to show Aurora */}
         <div className="relative z-10 bg-transparent">
-          <Services />
-          <Gallery />
-          <Testimonials />
-          <Team />
-          <SocialMedia />
-          <CTA />
+          <SectionTransition variant="fade-up" duration={600} delay={0}>
+            <Services />
+          </SectionTransition>
+          <SectionTransition variant="fade-up" duration={600} delay={0}>
+            <Gallery />
+          </SectionTransition>
+          <SectionTransition variant="fade-up" duration={600} delay={0}>
+            <Testimonials />
+          </SectionTransition>
+          <SectionTransition variant="fade-up" duration={600} delay={0}>
+            <Team />
+          </SectionTransition>
+          <SectionTransition variant="fade-up" duration={600} delay={0}>
+            <SocialMedia />
+          </SectionTransition>
+          <SectionTransition variant="zoom" duration={600} delay={0}>
+            <CTA />
+          </SectionTransition>
         </div>
       </main>
-      <Footer />
+      <SectionTransition variant="fade" duration={600}>
+        <Footer />
+      </SectionTransition>
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav 

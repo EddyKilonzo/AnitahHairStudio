@@ -1,8 +1,11 @@
+'use client';
+
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
+import { useRipple } from './ripple-effect'
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -41,19 +44,55 @@ function Button({
   variant,
   size,
   asChild = false,
+  disableRipple = false,
   ...props
 }: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    disableRipple?: boolean
   }) {
   const Comp = asChild ? Slot : 'button'
+  const { ripples, addRipple } = useRipple()
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!disableRipple) {
+      addRipple(e)
+    }
+    props.onClick?.(e)
+  }
 
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(
+        buttonVariants({ variant, size, className }),
+        'relative overflow-hidden'
+      )}
       {...props}
-    />
+      onClick={handleClick}
+    >
+      {props.children}
+      {!disableRipple && ripples.length > 0 && (
+        <span className="absolute inset-0 overflow-hidden pointer-events-none">
+          {ripples.map((ripple) => (
+            <span
+              key={ripple.id}
+              className="absolute rounded-full animate-ripple"
+              style={{
+                left: ripple.x,
+                top: ripple.y,
+                width: ripple.size,
+                height: ripple.size,
+                backgroundColor: variant === 'default' || variant === 'destructive' 
+                  ? 'rgba(255, 255, 255, 0.5)' 
+                  : 'rgba(169, 127, 255, 0.3)',
+                transform: 'scale(0)',
+              }}
+            />
+          ))}
+        </span>
+      )}
+    </Comp>
   )
 }
 

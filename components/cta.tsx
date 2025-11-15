@@ -2,8 +2,10 @@
 
 import { WhatsAppIcon } from './icons/whatsapp-icon';
 import Calendar from './calendar';
+import { useRipple } from './ui/ripple-effect';
 
 export default function CTA() {
+  const { ripples, addRipple } = useRipple();
 
   return (
     <section id="booking" className="py-24 px-4 md:px-8 bg-gradient-to-b from-background to-secondary/20">
@@ -28,11 +30,30 @@ export default function CTA() {
                 href="https://wa.me/254727833237?text=Hi%20Anita!%20I%27d%20like%20to%20book%20a%20hair%20appointment%20at%20your%20studio.%20Could%20you%20please%20let%20me%20know%20your%20available%20times?%20Thank%20you!"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-primary text-primary font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 group w-full md:w-auto z-10 relative"
+                onClick={addRipple}
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-primary text-primary font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 group w-full md:w-auto z-10 relative overflow-hidden"
               >
                 <WhatsAppIcon className="w-5 h-5" />
                 Book on WhatsApp
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
+                {ripples.length > 0 && (
+                  <span className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {ripples.map((ripple) => (
+                      <span
+                        key={ripple.id}
+                        className="absolute rounded-full animate-ripple"
+                        style={{
+                          left: ripple.x,
+                          top: ripple.y,
+                          width: ripple.size,
+                          height: ripple.size,
+                          backgroundColor: 'rgba(169, 127, 255, 0.3)',
+                          transform: 'scale(0)',
+                        }}
+                      />
+                    ))}
+                  </span>
+                )}
               </a>
               <p className="text-sm text-foreground/60">
                 We'll respond within 24 hours with available times

@@ -22,32 +22,69 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
     { label: 'Booking', href: '#booking' },
   ];
 
-  // Smooth scroll handler with animation
+  // Custom smooth scroll handler - prevents conflicts with other scroll handlers
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     
     if (element) {
-      const offset = 100; // Offset for fixed navbar
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      // Mark that we're doing programmatic navigation - longer duration for smoother transitions
+      (window as any).__isNavigating = true;
+      setTimeout(() => {
+        (window as any).__isNavigating = false;
+      }, 800);
+      
+      const offset = 120; // Offset for fixed navbar + some padding
+      const startPosition = window.pageYOffset;
+      const elementTop = element.getBoundingClientRect().top;
+      const targetPosition = elementTop + startPosition - offset;
+      const distance = targetPosition - startPosition;
+      const duration = 500; // Faster scroll for nav clicks
+      const startTime = performance.now();
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-
+      // Immediately set active section
       setActiveSection(targetId);
       setIsOpen(false);
+
+      // Easing function for smooth animation
+      const easeInOutCubic = (t: number): number => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
+
+      // Custom smooth scroll animation
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        window.scrollTo(0, startPosition + distance * easedProgress);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Update URL hash and ensure active section is still correct
+          history.pushState(null, '', href);
+          setActiveSection(targetId);
+        }
+      };
+
+      requestAnimationFrame(animate);
     }
   };
 
-  // Track active section on scroll
+  // Track active section on scroll - runs immediately without debounce
   useEffect(() => {
     const handleScroll = () => {
+      // Skip scroll-based updates if we're currently navigating
+      if ((window as any).__isNavigating) {
+        return;
+      }
+      
       const sections = menuItems.map(item => item.href.replace('#', ''));
-      const scrollPosition = window.scrollY + 150; // Navbar height offset
+      const scrollPosition = window.scrollY + 180; // Match navigation offset
 
       // Check each section from top to bottom
       for (const sectionId of sections) {
@@ -63,21 +100,20 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
           }
         }
       }
+      
+      // Default to 'home' if we're at the very top
+      if (window.scrollY < 100) {
+        setActiveSection('home');
+      }
     };
 
-    // Debounce scroll handler for better performance
-    let timeoutId: NodeJS.Timeout;
-    const debouncedHandleScroll = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(handleScroll, 50);
-    };
+    // Call immediately on mount to set initial section
+    setTimeout(() => handleScroll(), 200);
 
-    window.addEventListener('scroll', debouncedHandleScroll);
-    handleScroll(); // Initial check
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('scroll', debouncedHandleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 

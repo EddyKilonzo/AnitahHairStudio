@@ -1,17 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Phone, Mail, Send } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -34,12 +28,6 @@ export default function Contact() {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    setFormData({ name: '', email: '', phone: '', message: '' });
-  };
-
   return (
     <section 
       ref={sectionRef}
@@ -54,13 +42,13 @@ export default function Contact() {
           <p className="text-lg text-foreground/70">Ready for your transformation? Get in touch to schedule your visit.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="flex justify-center">
           {/* Contact Info */}
-          <div className="space-y-8">
-            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-primary" />
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl w-full">
+            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex flex-col gap-4 items-center text-center">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <MapPin className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110 group-hover:rotate-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Location</h3>
@@ -69,10 +57,10 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-primary" />
+            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex flex-col gap-4 items-center text-center">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <Phone className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110 group-hover:rotate-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Phone</h3>
@@ -81,10 +69,10 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-6 h-6 text-primary" />
+            <div className="glass rounded-2xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex flex-col gap-4 items-center text-center">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <Mail className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110 group-hover:rotate-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Email</h3>
@@ -93,60 +81,6 @@ export default function Contact() {
               </div>
             </div>
           </div>
-
-          {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                placeholder="Your name"
-                className="w-full px-4 py-3 rounded-lg bg-input border border-border focus:outline-none focus:ring-2 focus:ring-primary/50"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-lg bg-input border border-border focus:outline-none focus:ring-2 focus:ring-primary/50"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Phone</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                placeholder="(555) 000-0000"
-                className="w-full px-4 py-3 rounded-lg bg-input border border-border focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Message</label>
-              <textarea
-                value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-                placeholder="Tell us about your desired service and preferred date/time..."
-                rows={4}
-                className="w-full px-4 py-3 rounded-lg bg-input border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 group"
-            >
-              Book Appointment
-              <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </form>
         </div>
       </div>
     </section>

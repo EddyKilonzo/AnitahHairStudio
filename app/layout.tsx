@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Poppins } from 'next/font/google'
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import AOSInit from '@/components/aos-init'
+import { TransitionProvider } from '@/components/transitions'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -30,9 +31,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${_poppins.variable} font-sans antialiased`}>
-        <AOSInit />
-        {children}
-        <Analytics />
+        <TransitionProvider>
+          <AOSInit />
+          {children}
+          <Analytics />
+        </TransitionProvider>
       </body>
     </html>
   )
