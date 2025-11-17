@@ -118,21 +118,21 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
-      <div className={`mx-4 mt-4 rounded-2xl border px-6 py-2 lg:mx-8 ${
+    <nav className="fixed top-0 left-0 right-0 z-50 overflow-hidden">
+      <div className={`mx-2 sm:mx-4 mt-4 rounded-2xl border px-3 sm:px-6 py-2 lg:mx-8 ${
         isDark 
           ? 'bg-black/20 backdrop-blur-xl border-white/10 shadow-lg' 
           : 'bg-white/40 backdrop-blur-md border-white/50 shadow-lg'
       }`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 min-w-0">
             <Image
               src={isDark ? "/AnitaLogo.png" : "/AnitaLogo-removebg-preview.png"}
               alt="Anitah's Hair Studio Logo"
               width={240}
               height={80}
-              className="h-12 md:h-14 w-auto object-contain rounded-xl"
+              className="h-10 sm:h-12 md:h-14 w-auto max-w-[180px] sm:max-w-[200px] md:max-w-none object-contain rounded-xl"
               priority
             />
           </Link>
@@ -165,10 +165,10 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <button
               onClick={() => setIsDark(!isDark)}
-              className="p-2 rounded-lg hover:bg-accent/10 transition-colors"
+              className="p-2 rounded-lg hover:bg-accent/10 transition-colors flex-shrink-0"
               aria-label="Toggle dark mode"
             >
               {isDark ? (
@@ -181,7 +181,7 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2"
+              className="lg:hidden p-2 flex-shrink-0"
               aria-label="Toggle menu"
             >
               {isOpen ? (
