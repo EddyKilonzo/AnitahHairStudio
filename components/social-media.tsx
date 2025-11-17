@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { InstagramIcon } from './icons/instagram-icon';
 import { WhatsAppIcon } from './icons/whatsapp-icon';
 import { TikTokIcon } from './icons/tiktok-icon';
@@ -40,25 +40,26 @@ const socialMediaData = {
     {
       id: '1',
       type: 'image' as const,
-      imageUrl: '/placeholder.jpg',
+      // Prefer iframe embed when available
+      embedUrl: 'https://www.instagram.com/p/DP6dadTCKYj/embed?hidecaption=true',
       caption: 'Beautiful balayage work'
     },
     {
       id: '2',
       type: 'image' as const,
-      imageUrl: '/placeholder.jpg',
+      embedUrl: 'https://www.instagram.com/p/DOvLo_dDRbY/embed?hidecaption=true',
       caption: 'Fresh cut and style'
     },
     {
       id: '3',
       type: 'image' as const,
-      imageUrl: '/placeholder.jpg',
+      embedUrl: 'https://www.instagram.com/p/DOtfVctDdnP/embed?hidecaption=true',
       caption: 'Summer hair vibes'
     },
     {
       id: '4',
       type: 'image' as const,
-      imageUrl: '/placeholder.jpg',
+      embedUrl: 'https://www.instagram.com/p/DPWqitQDewi/embed?hidecaption=true',
       caption: 'Stunning color transformation'
     },
   ],
@@ -88,6 +89,29 @@ type Platform = 'tiktok' | 'instagram' | 'whatsapp';
 
 export default function SocialMedia() {
   const [activeTab, setActiveTab] = useState<Platform>('instagram');
+  const sectionRef = useRef<HTMLElement>(null);
+  const [hasEntered, setHasEntered] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasEntered(true);
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   const tabs = [
     {
@@ -117,8 +141,9 @@ export default function SocialMedia() {
 
   return (
     <section 
+      ref={sectionRef}
       id="social-media" 
-      className="py-16 md:py-20 lg:py-24 px-4 md:px-8 lg:px-12 bg-gradient-to-b from-background to-muted/20"
+      className="py-16 md:py-20 lg:py-24 px-4 md:px-8 lg:px-12 bg-gradient-to-b from-background to-muted/20 transition-all duration-700"
     >
       <div 
         className="max-w-7xl mx-auto bg-background/50 backdrop-blur-sm rounded-3xl p-8 md:p-10 lg:p-12"
@@ -180,62 +205,81 @@ export default function SocialMedia() {
           data-aos="fade-up" 
           data-aos-delay="200"
         >
-          {/* TikTok Videos */}
-          {activeTab === 'tiktok' && (
-            <div 
-              key="tiktok"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
-            >
-              {currentData.map((item) => (
+          {/* TikTok Videos - keep mounted, toggle visibility */}
+          <div 
+            key="tiktok"
+            className={`${
+              activeTab === 'tiktok' ? 'block' : 'hidden'
+            } grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700`}
+            aria-hidden={activeTab !== 'tiktok'}
+          >
+            {socialMediaData.tiktok.map((item, index) => (
+              <div
+                key={item.id}
+                className={`group relative rounded-2xl overflow-hidden glass-card transition-all duration-300 hover:scale-105 ${hasEntered ? 'animate-fade-in-up' : 'opacity-0 translate-y-6'}`}
+                style={{ 
+                  aspectRatio: '9 / 16',
+                  boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset',
+                  animationDelay: `${index * 260}ms`,
+                  animationDuration: '1200ms',
+                  animationFillMode: 'both'
+                }}
+              >
+                {item.type === 'video' && item.embedUrl ? (
+                  <iframe
+                    src={item.embedUrl}
+                    className="w-full h-full"
+                    allow="encrypted-media; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <div className="text-center p-6">
+                      <TikTokIcon className="w-12 h-12 mx-auto mb-3 text-primary" />
+                      <p className="text-muted-foreground">Add your TikTok video</p>
+                    </div>
+                  </div>
+                )}
+                {item.caption && (
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                    <p className="text-white text-sm font-medium">{item.caption}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Instagram Posts - keep mounted, toggle visibility */}
+          <div 
+            key="instagram"
+            className={`${
+              activeTab === 'instagram' ? 'grid' : 'hidden'
+            } grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700`}
+            aria-hidden={activeTab !== 'instagram'}
+          >
+            {socialMediaData.instagram.map((item, index) => (
                 <div
                   key={item.id}
-                  className="group relative rounded-2xl overflow-hidden bg-card transition-all duration-300 hover:scale-105"
+                  className={`group relative rounded-xl overflow-hidden glass-card transition-all duration-300 hover:scale-105 ${hasEntered ? 'animate-fade-in-up' : 'opacity-0 translate-y-6'}`}
                   style={{ 
-                    aspectRatio: '9 / 16',
-                    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
+                    aspectRatio: '4 / 5',
+                    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset',
+                    animationDelay: `${index * 260}ms`,
+                    animationDuration: '1200ms',
+                    animationFillMode: 'both'
                   }}
                 >
-                  {item.type === 'video' && item.embedUrl ? (
+                  {item.embedUrl ? (
                     <iframe
                       src={item.embedUrl}
-                      className="w-full h-full"
-                      allow="encrypted-media; picture-in-picture"
+                      className="w-full h-full border-0"
+                      allow="encrypted-media; picture-in-picture; clipboard-write"
+                      loading="lazy"
                       allowFullScreen
+                      scrolling="no"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <div className="text-center p-6">
-                        <TikTokIcon className="w-12 h-12 mx-auto mb-3 text-primary" />
-                        <p className="text-muted-foreground">Add your TikTok video</p>
-                      </div>
-                    </div>
-                  )}
-                  {item.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                      <p className="text-white text-sm font-medium">{item.caption}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Instagram Posts */}
-          {activeTab === 'instagram' && (
-            <div 
-              key="instagram"
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700"
-            >
-              {currentData.map((item) => (
-                <div
-                  key={item.id}
-                  className="group relative rounded-xl overflow-hidden bg-card transition-all duration-300 hover:scale-105"
-                  style={{ 
-                    aspectRatio: '1 / 1',
-                    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
-                  }}
-                >
-                  {item.type === 'image' && item.imageUrl ? (
+                  ) : item.type === 'image' && item.imageUrl ? (
                     <>
                       <Image
                         src={item.imageUrl}
@@ -258,85 +302,73 @@ export default function SocialMedia() {
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
 
-          {/* WhatsApp Content */}
-          {activeTab === 'whatsapp' && (
-            <div 
-              key="whatsapp"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
+          {/* WhatsApp Content - keep mounted, toggle visibility */}
+          <div 
+            key="whatsapp"
+            className={`${activeTab === 'whatsapp' ? 'grid' : 'hidden'} grid-cols-1 gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700`}
+            aria-hidden={activeTab !== 'whatsapp'}
+          >
+            <div
+              className={`group relative rounded-2xl overflow-hidden glass-card transition-all duration-300 hover:scale-[1.02] ${hasEntered ? 'animate-fade-in-up' : 'opacity-0 translate-y-6'}`}
+              style={{ 
+                minHeight: '260px',
+                boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset',
+                animationDelay: `120ms`,
+                animationDuration: '1200ms',
+                animationFillMode: 'both'
+              }}
             >
-              {currentData.map((item) => (
-                <div
-                  key={item.id}
-                  className="group relative rounded-2xl overflow-hidden bg-card transition-all duration-300 hover:scale-105"
-                  style={{ 
-                    aspectRatio: '4 / 5',
-                    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
-                  }}
-                >
-                  {item.type === 'image' && item.imageUrl ? (
-                    <>
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.caption || 'WhatsApp content'}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end">
-                        <div className="p-6 w-full">
-                          <div 
-                            className="flex items-center gap-2 mb-2"
-                            style={{ color: 'oklch(0.75 0.12 280)' }}
-                          >
-                            <WhatsAppIcon className="w-5 h-5" />
-                            <span className="text-sm font-semibold text-white">Client Story</span>
-                          </div>
-                          <p className="text-white text-sm">{item.caption}</p>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <div className="text-center p-6">
-                        <WhatsAppIcon className="w-12 h-12 mx-auto mb-3 text-primary" />
-                        <p className="text-muted-foreground">Add WhatsApp content</p>
-                      </div>
-                    </div>
-                  )}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-primary/10" />
+              <div className="relative h-full w-full flex flex-col items-center justify-center gap-4 p-8 text-center">
+                <div className="flex items-center justify-center gap-3">
+                  <WhatsAppIcon className="w-8 h-8 text-primary" />
+                  <h3 className="text-xl md:text-2xl font-bold">Join our WhatsApp Group</h3>
                 </div>
-              ))}
+                <p className="text-foreground/70 max-w-xl">
+                  Follow this link to join my WhatsApp group.
+                </p>
+                <a
+                  href="https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary bg-primary text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+                >
+                  <WhatsAppIcon className="w-5 h-5" />
+                  <span>Join Group</span>
+                </a>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Call to Action */}
         <div 
-          className="text-center mt-12 lg:mt-16" 
+          className="text-center mt-12 lg:mt-16 px-2 sm:px-0" 
           data-aos="fade-up" 
           data-aos-delay="300"
         >
-          <p className="text-foreground/70 mb-4">Want to see more? Follow us on social media!</p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <p className="text-foreground/70 mb-4 px-2">Want to see more? Follow us on social media!</p>
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-4 w-full">
             <a
               href="https://www.instagram.com/anitahshair_studio1/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary bg-transparent text-primary font-semibold hover:bg-primary/10 hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full border-2 border-primary bg-transparent text-primary font-semibold hover:bg-primary/10 hover:scale-105 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto max-w-full"
             >
-              <InstagramIcon className="w-5 h-5" />
+              <InstagramIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
               <span>Follow on Instagram</span>
             </a>
             <a
-              href="#"
+              href="https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary bg-primary text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full border-2 border-primary bg-primary text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto max-w-full"
             >
-              <WhatsAppIcon className="w-5 h-5" />
-              <span>Follow WhatsApp Channel</span>
+              <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span>Join WhatsApp Group</span>
             </a>
           </div>
         </div>

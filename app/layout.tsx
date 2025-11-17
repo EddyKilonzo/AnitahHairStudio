@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${_poppins.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${_poppins.variable} font-sans antialiased`}>
         <TransitionProvider>
           <AOSInit />
           {children}

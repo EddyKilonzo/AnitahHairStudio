@@ -3,7 +3,6 @@
 import { Calendar, Phone, X } from 'lucide-react';
 import { WhatsAppIcon } from './icons/whatsapp-icon';
 import { InstagramIcon } from './icons/instagram-icon';
-import { TikTokIcon } from './icons/tiktok-icon';
 
 interface QuickActionSheetProps {
   isOpen: boolean;
@@ -57,15 +56,15 @@ export default function QuickActionSheet({ isOpen, onClose }: QuickActionSheetPr
       icon: 'instagram',
       label: 'Instagram',
       action: () => {
-        window.open('https://instagram.com/anitashairstudio', '_blank');
+        window.open('https://www.instagram.com/anitahshair_studio1/', '_blank');
       }
     },
     {
-      id: 'tiktok',
-      icon: 'tiktok',
-      label: 'TikTok',
+      id: 'whatsapp-group',
+      icon: 'whatsapp',
+      label: 'WhatsApp Group',
       action: () => {
-        window.open('https://tiktok.com/@anitashairstudio', '_blank');
+        window.open('https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt', '_blank');
       }
     }
   ];
@@ -147,18 +146,18 @@ export default function QuickActionSheet({ isOpen, onClose }: QuickActionSheetPr
               <p className="text-xs font-medium text-foreground/60 mb-3">Follow Us</p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => window.open('https://instagram.com/anitashairstudio', '_blank')}
+                  onClick={() => window.open('https://www.instagram.com/anitahshair_studio1/', '_blank')}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 group"
                 >
                   <InstagramIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
                   <span className="text-sm">Instagram</span>
                 </button>
                 <button
-                  onClick={() => window.open('https://tiktok.com/@anitashairstudio', '_blank')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-black text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-black/50 hover:scale-105 group"
+                  onClick={() => window.open('https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt', '_blank')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50 hover:scale-105 group"
                 >
-                  <TikTokIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-                  <span className="text-sm">TikTok</span>
+                  <WhatsAppIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                  <span className="text-sm">WhatsApp Group</span>
                 </button>
               </div>
             </div>

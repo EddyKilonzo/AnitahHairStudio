@@ -15,18 +15,18 @@ interface LinePath {
 export default function Hero() {
   const { ripples: heroRipples, addRipple: addHeroRipple } = useRipple();
   
-  // Gallery images
+  // Gallery images (same as hero images for preview modal)
   const galleryImages = [
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Premium Hair Styling' },
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Hair Coloring' },
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Hair Braiding' },
+    { src: '/hero-braids-2.jpeg', alt: 'Anita\'s Hair Studio - Professional Box Braids' },
+    { src: '/hero-braids-4.jpeg', alt: 'Anita\'s Hair Studio - Beautiful Passion Twists' },
+    { src: '/hero-braids-3.jpeg', alt: 'Anita\'s Hair Studio - Knotless Braids' },
   ];
 
   // Hero images for the three-image stacked design
   const heroImages = [
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Hair Styling' },
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Hair Services' },
-    { src: '/placeholder.jpg', alt: 'Anita\'s Hair Studio - Premium Care' },
+    { src: '/hero-braids-2.jpeg', alt: 'Anita\'s Hair Studio - Professional Box Braids' },
+    { src: '/hero-braids-4.jpeg', alt: 'Anita\'s Hair Studio - Beautiful Passion Twists' },
+    { src: '/hero-braids-3.jpeg', alt: 'Anita\'s Hair Studio - Knotless Braids' },
   ];
 
   // Purple theme variations matching Aurora colors (#A97FFF, #C19FFF, #D4B3FF)
@@ -82,32 +82,57 @@ export default function Hero() {
 
   // Card configurations for shuffling animation
   // Each configuration defines positions for all 3 cards
-  const cardConfigurations = [
-    // Configuration 0: Original position - all cards visible
-    [
-      { width: '100%', height: '100%', pos: 'inset-0', transform: 'translateX(-8px) translateY(12px) rotate(-3deg)', zIndex: 1 },
-      { width: '92%', height: '92%', pos: 'left-0 top-0', transform: 'translateX(6px) translateY(6px) rotate(1deg)', zIndex: 2 },
-      { width: '85%', height: '88%', pos: 'right-0 top-0', transform: 'translateX(12px) translateY(-6px) rotate(2deg)', zIndex: 3 },
-    ],
-    // Configuration 1: Shuffled - card 2 moves to back
-    [
-      { width: '85%', height: '88%', pos: 'left-0 bottom-0', transform: 'translateX(-12px) translateY(10px) rotate(-2deg)', zIndex: 1 },
-      { width: '100%', height: '100%', pos: 'inset-0', transform: 'translateX(6px) translateY(6px) rotate(1deg)', zIndex: 2 },
-      { width: '92%', height: '92%', pos: 'right-0 top-0', transform: 'translateX(10px) translateY(-10px) rotate(3deg)', zIndex: 3 },
-    ],
-    // Configuration 2: Shuffled - card 1 moves to front
-    [
-      { width: '92%', height: '92%', pos: 'left-0 top-0', transform: 'translateX(-8px) translateY(8px) rotate(-1deg)', zIndex: 1 },
-      { width: '85%', height: '88%', pos: 'right-0 top-0', transform: 'translateX(12px) translateY(-8px) rotate(2.5deg)', zIndex: 2 },
-      { width: '100%', height: '100%', pos: 'inset-0', transform: 'translateX(4px) translateY(-4px) rotate(1.5deg)', zIndex: 3 },
-    ],
-    // Configuration 3: Shuffled - all cards repositioned
-    [
-      { width: '88%', height: '90%', pos: 'right-0 bottom-0', transform: 'translateX(8px) translateY(12px) rotate(2deg)', zIndex: 1 },
-      { width: '85%', height: '88%', pos: 'left-0 top-0', transform: 'translateX(-6px) translateY(-6px) rotate(-1.5deg)', zIndex: 2 },
-      { width: '92%', height: '92%', pos: 'inset-0', transform: 'translateX(3px) translateY(3px) rotate(0.5deg)', zIndex: 3 },
-    ],
-  ];
+  // All three cards MUST be visible at all times
+  const getCardConfig = () => {
+    // More aggressive scaling on mobile to prevent overflow
+    let scale = 1;
+    let sizeMultiplier = 1;
+    
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth;
+      if (width < 768) {
+        // Mobile: smaller scale and size
+        scale = 0.3;
+        sizeMultiplier = 0.85;
+      } else if (width < 1024) {
+        // Tablet: medium scale and size
+        scale = 0.5;
+        sizeMultiplier = 0.9;
+      }
+      // Desktop: full scale and size (default values)
+    }
+    
+    const getSize = (baseSize: number) => `${baseSize * sizeMultiplier}%`;
+    
+    return [
+      // Configuration 0: Classic stacked fan
+      [
+        { width: getSize(100), height: getSize(100), pos: 'left-0 top-0', transform: `translateX(${-15*scale}px) translateY(${40*scale}px) rotate(-4deg)`, zIndex: 1 },
+        { width: getSize(95), height: getSize(95), pos: 'right-0 bottom-0', transform: `translateX(${5*scale}px) translateY(${-10*scale}px) rotate(1deg)`, zIndex: 2 },
+        { width: getSize(92), height: getSize(93), pos: 'right-0 top-0', transform: `translateX(${20*scale}px) translateY(${-30*scale}px) rotate(3deg)`, zIndex: 3 },
+      ],
+      // Configuration 1: Diagonal spread
+      [
+        { width: getSize(90), height: getSize(92), pos: 'right-0 bottom-0', transform: `translateX(${25*scale}px) translateY(${35*scale}px) rotate(5deg)`, zIndex: 2 },
+        { width: getSize(95), height: getSize(95), pos: 'left-0 top-0', transform: `translateX(${-20*scale}px) translateY(${-25*scale}px) rotate(-3deg)`, zIndex: 3 },
+        { width: getSize(88), height: getSize(90), pos: 'left-0 bottom-0', transform: `translateX(${-30*scale}px) translateY(${20*scale}px) rotate(-5deg)`, zIndex: 1 },
+      ],
+      // Configuration 2: Triangular arrangement
+      [
+        { width: getSize(93), height: getSize(93), pos: 'left-0 top-0', transform: `translateX(${-25*scale}px) translateY(${30*scale}px) rotate(-3deg)`, zIndex: 1 },
+        { width: getSize(88), height: getSize(90), pos: 'right-0 top-0', transform: `translateX(${30*scale}px) translateY(${-35*scale}px) rotate(4deg)`, zIndex: 2 },
+        { width: getSize(98), height: getSize(97), pos: 'inset-0', transform: `translateX(${0*scale}px) translateY(${5*scale}px) rotate(0deg)`, zIndex: 3 },
+      ],
+      // Configuration 3: Scattered wide
+      [
+        { width: getSize(90), height: getSize(92), pos: 'right-0 top-0', transform: `translateX(${35*scale}px) translateY(${-20*scale}px) rotate(4deg)`, zIndex: 3 },
+        { width: getSize(85), height: getSize(88), pos: 'left-0 bottom-0', transform: `translateX(${-35*scale}px) translateY(${25*scale}px) rotate(-4deg)`, zIndex: 1 },
+        { width: getSize(95), height: getSize(95), pos: 'right-0 bottom-0', transform: `translateX(${15*scale}px) translateY(${10*scale}px) rotate(2deg)`, zIndex: 2 },
+      ],
+    ];
+  };
+  
+  const cardConfigurations = getCardConfig();
 
   // Shuffling animation effect
   useEffect(() => {
@@ -118,7 +143,7 @@ export default function Hero() {
     }, 4000); // Shuffle every 4 seconds
 
     return () => clearInterval(shuffleInterval);
-  }, [mounted, cardConfigurations.length]);
+  }, [mounted, cardConfigurations.length, isMobile]);
 
   // Gallery navigation functions
   const goToPrevious = useCallback(() => {
@@ -315,7 +340,7 @@ export default function Hero() {
           {/* Left Side - Content (40% width) */}
           <div 
             ref={contentContainerRef}
-            className="space-y-1.5 sm:space-y-2 md:space-y-3 lg:space-y-5 relative z-10 flex flex-col justify-center mt-4 sm:mt-6 md:mt-8 lg:mt-16" 
+            className="space-y-1.5 sm:space-y-2 md:space-y-3 lg:space-y-5 relative z-10 flex flex-col justify-center mt-12 sm:mt-16 md:mt-20 lg:mt-24" 
             data-aos="fade-up" 
             data-aos-duration="900"
           >
@@ -382,10 +407,11 @@ export default function Hero() {
           </div>
 
           {/* Right Side - Three Stacked Images with Shuffling Animation */}
-          <div className="relative flex flex-col items-center md:items-start lg:items-start justify-center lg:justify-end lg:pr-0 pt-2 sm:pt-4 md:pt-6 lg:pt-16 overflow-hidden" data-aos="fade-up" data-aos-duration="900" data-aos-delay="300">
+          <div className="relative flex flex-col items-center md:items-start lg:items-start justify-center lg:justify-end lg:pr-0 pt-2 sm:pt-4 md:pt-6 lg:pt-16 px-2 sm:px-4" data-aos="fade-up" data-aos-duration="900" data-aos-delay="300">
             <div 
               ref={imageRef}
-              className="relative w-full max-w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl h-[200px] sm:h-[260px] md:h-[340px] lg:h-[480px] xl:h-[520px] 2xl:h-[560px] pointer-events-none lg:pointer-events-auto"
+              className="relative w-full max-w-[85%] sm:max-w-[75%] md:max-w-xl lg:max-w-2xl h-[180px] xs:h-[200px] sm:h-[240px] md:h-[320px] lg:h-[480px] xl:h-[520px] 2xl:h-[560px] pointer-events-none lg:pointer-events-auto mx-auto"
+              style={{ perspective: '1000px' }}
             >
               {heroImages.map((image, index) => {
                 const config = cardConfigurations[shuffleIndex][index];
@@ -394,28 +420,36 @@ export default function Hero() {
                 return (
                   <div
                     key={index}
-                    className={`absolute ${config.pos} rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl cursor-pointer group lg:pointer-events-auto pointer-events-none`}
+                    className={`absolute ${config.pos} rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer group lg:pointer-events-auto pointer-events-none`}
                     onClick={() => setIsPreviewOpen(true)}
                     style={{
                       width: config.width,
                       height: config.height,
                       transform: config.transform,
                       zIndex: config.zIndex,
-                      transition: 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1), z-index 1.2s ease-in-out',
+                      transition: 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s, box-shadow 1.2s ease',
+                      boxShadow: config.zIndex === 3 
+                        ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(169, 127, 255, 0.3)' 
+                        : config.zIndex === 2 
+                        ? '0 20px 40px -12px rgba(0, 0, 0, 0.4)' 
+                        : '0 10px 30px -12px rgba(0, 0, 0, 0.3)',
+                      willChange: 'transform',
                     }}
                     suppressHydrationWarning
                   >
                     <div 
                       ref={index === 0 ? imageContainerRef : null}
-                      className="relative w-full h-full rounded-xl sm:rounded-2xl lg:rounded-3xl"
+                      className="relative w-full h-full rounded-xl sm:rounded-2xl lg:rounded-3xl bg-linear-to-br from-primary/5 to-accent/5"
                     >
                       <Image
                         src={image.src}
                         alt={image.alt}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         priority={index === 0}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                        sizes="(max-width: 640px) 95vw, (max-width: 768px) 90vw, (max-width: 1024px) 50vw, 600px"
+                        quality={95}
+                        style={{ objectFit: 'cover', objectPosition: '50% 35%' }}
                       />
                       <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
@@ -430,7 +464,7 @@ export default function Hero() {
             </div>
             
             {/* Service Icons - Below images on mobile/tablet, hidden on desktop (shown at bottom) */}
-            <div className="lg:hidden w-full mt-2 sm:mt-3 md:mt-4 pt-2">
+            <div className="lg:hidden w-full mt-4 sm:mt-5 md:mt-6 pt-4">
               <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 relative items-end justify-center max-w-md mx-auto" style={{ zIndex: 10 }} suppressHydrationWarning>
                 {services.map((service, index) => {
                   const Icon = service.icon;
@@ -525,10 +559,10 @@ export default function Hero() {
         )}
 
         {/* Bottom Section - Service Icons - Desktop only */}
-        <div className="hidden lg:block relative mt-2 lg:mt-4 xl:mt-6 h-[120px] lg:h-[140px] xl:h-[160px] shrink-0">
+        <div className="hidden lg:block relative mt-6 lg:mt-8 xl:mt-10 h-[120px] lg:h-[140px] xl:h-[160px] shrink-0">
           {/* Service Icons Grid - 3 circles, constrained to not pass image */}
           {/* Icons stay within left column (40% width) so they don't extend beyond image */}
-          <div className="grid grid-cols-3 gap-3 lg:gap-4 xl:gap-6 relative h-full items-end pb-2 lg:max-w-[40%]" style={{ zIndex: 10 }}>
+          <div className="grid grid-cols-3 gap-3 lg:gap-4 xl:gap-6 relative h-full items-end pb-4 lg:pb-6 lg:max-w-[40%]" style={{ zIndex: 10 }}>
             {services.map((service, index) => {
               const Icon = service.icon;
               const isFocused = focusedServiceIndex === index;
@@ -586,12 +620,12 @@ export default function Hero() {
       {/* Image Preview Modal */}
       {isPreviewOpen && (
         <div 
-          className="fixed inset-0 z-9999 bg-black/90 backdrop-blur-xl flex items-center justify-center"
+          className="fixed inset-0 z-9999 bg-black/90 backdrop-blur-xl flex items-center justify-center cursor-pointer"
           onClick={() => setIsPreviewOpen(false)}
         >
           {/* Modal Container - 50vh height with margins */}
           <div 
-            className="relative w-full max-w-5xl h-[50vh] m-4 md:m-6 lg:m-8 flex items-center justify-center"
+            className="relative w-full max-w-5xl h-[50vh] m-4 md:m-6 lg:m-8 flex items-center justify-center cursor-default pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button - Top right, above navbar */}

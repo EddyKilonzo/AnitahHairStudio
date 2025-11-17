@@ -12,24 +12,39 @@ import SocialMedia from '@/components/social-media';
 import Footer from '@/components/footer';
 import Aurora from '@/components/aurora';
 import MobileBottomNav from '@/components/mobile-bottom-nav';
-import FloatingActionButton from '@/components/floating-action-button';
+import QuickActionSheet from '@/components/quick-action-sheet';
 import { 
   PageOverlay, 
   SmoothScroll, 
   ScrollProgress,
   SectionTransition 
 } from '@/components/transitions';
+import PageLoader from '@/components/page-loader';
+import { Sparkles } from 'lucide-react';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [isQuickActionSheetOpen, setIsQuickActionSheetOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDark(prefersDark);
+    
+    // Check if mobile on mount and resize
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -41,10 +56,21 @@ export default function Home() {
     }
   }, [isDark, mounted]);
 
-  // Track active section on scroll
+  // Track active section on scroll and show quick actions button at 50% scroll
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
+      
+      // Calculate 50% of page height
+      const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (window.scrollY / pageHeight) * 100;
+      
+      // Show quick actions button after 50% scroll on mobile
+      if (isMobile) {
+        setShowQuickActions(scrollPercent >= 50);
+      } else {
+        setShowQuickActions(false);
+      }
       
       // Update active section based on scroll position
       const sections = ['home', 'services', 'gallery', 'team', 'booking'];
@@ -67,7 +93,32 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobile]);
+
+  // Track hero section visibility to hide mobile nav
+  useEffect(() => {
+    if (!mounted) return;
+
+    const heroSection = document.getElementById('home');
+    if (!heroSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Hide mobile nav when hero is visible (more than 20% visible)
+        setIsHeroVisible(entry.intersectionRatio > 0.2);
+      },
+      {
+        threshold: [0, 0.2, 0.5, 1],
+        rootMargin: '-80px 0px 0px 0px' // Account for top navbar
+      }
+    );
+
+    observer.observe(heroSection);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [mounted]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -77,6 +128,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-foreground relative">
+      {/* Page Loading Animation */}
+      <PageLoader />
+      
       {/* Transition Components */}
       <PageOverlay />
       <SmoothScroll duration={800} easing="ease-in-out" />
@@ -137,11 +191,9 @@ export default function Home() {
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav 
         activeSection={activeSection} 
-        onNavigate={setActiveSection} 
+        onNavigate={setActiveSection}
+        hideInHero={isHeroVisible}
       />
-
-      {/* Floating Action Button - Mobile Only */}
-      <FloatingActionButton />
 
       {/* Scroll to Top Button - Desktop Only */}
       {showScrollTop && (
@@ -165,6 +217,26 @@ export default function Home() {
           </svg>
         </button>
       )}
+
+      {/* Quick Actions Button - Mobile Only */}
+      {showQuickActions && (
+        <button
+          onClick={() => setIsQuickActionSheetOpen(true)}
+          className="lg:hidden fixed right-4 bottom-20 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-2xl hover:shadow-primary/50 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center group animate-fade-in-up"
+          aria-label="Quick actions"
+          style={{
+            animation: 'fadeInUp 0.3s ease-out'
+          }}
+        >
+          <Sparkles className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" strokeWidth={2.5} />
+        </button>
+      )}
+
+      {/* Quick Action Sheet */}
+      <QuickActionSheet 
+        isOpen={isQuickActionSheetOpen} 
+        onClose={() => setIsQuickActionSheetOpen(false)} 
+      />
     </div>
   );
 }
