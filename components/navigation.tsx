@@ -118,21 +118,21 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 overflow-hidden">
-      <div className={`mx-2 sm:mx-4 mt-4 rounded-2xl border px-3 sm:px-6 py-2 lg:mx-8 ${
+    <nav className="fixed top-0 left-0 right-0 z-50 overflow-hidden w-full max-w-full">
+      <div className={`mx-2 sm:mx-4 mt-4 rounded-2xl border px-2 sm:px-3 md:px-6 py-2 lg:mx-8 max-w-full ${
         isDark 
           ? 'bg-black/20 backdrop-blur-xl border-white/10 shadow-lg' 
           : 'bg-white/40 backdrop-blur-md border-white/50 shadow-lg'
       }`}>
-        <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-4 min-w-0 w-full">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 min-w-0">
+          <Link href="/" className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity flex-shrink-0 min-w-0 overflow-hidden">
             <Image
               src={isDark ? "/AnitaLogo.png" : "/AnitaLogo-removebg-preview.png"}
               alt="Anitah's Hair Studio Logo"
               width={240}
               height={80}
-              className="h-10 sm:h-12 md:h-14 w-auto max-w-[180px] sm:max-w-[200px] md:max-w-none object-contain rounded-xl"
+              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto max-w-[140px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-none object-contain rounded-xl"
               priority
             />
           </Link>
@@ -165,29 +165,29 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 flex-shrink-0">
             <button
               onClick={() => setIsDark(!isDark)}
-              className="p-2 rounded-lg hover:bg-accent/10 transition-colors flex-shrink-0"
+              className="p-1.5 sm:p-2 rounded-lg hover:bg-accent/10 transition-colors flex-shrink-0"
               aria-label="Toggle dark mode"
             >
               {isDark ? (
-                <Sun className="w-5 h-5 text-primary" />
+                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               ) : (
-                <Moon className="w-5 h-5 text-primary" />
+                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               )}
             </button>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 flex-shrink-0"
+              className="lg:hidden p-1.5 sm:p-2 flex-shrink-0"
               aria-label="Toggle menu"
             >
               {isOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
               )}
             </button>
           </div>
