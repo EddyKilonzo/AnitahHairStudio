@@ -166,9 +166,7 @@ export default function Gallery() {
             return (
               <div
                 key={item.id}
-                className={`group relative overflow-hidden rounded-xl md:rounded-2xl aspect-square transition-shadow duration-300 ${
-                  activeCardId === item.id ? 'active' : ''
-                }`}
+                className="group relative overflow-hidden rounded-xl md:rounded-2xl aspect-square transition-shadow duration-300"
                 data-aos="fade-up"
                 data-aos-duration="500"
                 data-aos-delay={index * 30}
@@ -177,6 +175,10 @@ export default function Gallery() {
                 style={{ 
                   boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset',
                   zIndex: playingVideoId === item.id ? 10 : 1,
+                  position: 'relative',
+                  transform: 'translateZ(0)', // Force GPU acceleration and prevent layout shifts
+                  touchAction: 'manipulation', // Prevent double-tap zoom and other touch behaviors
+                  willChange: 'auto', // Don't hint at changes to prevent layout shifts
                 } as React.CSSProperties}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = 'rgba(50, 50, 93, 0.35) 0px 60px 120px -20px, rgba(0, 0, 0, 0.4) 0px 40px 80px -30px, rgba(10, 37, 64, 0.45) 0px -2px 8px 0px inset, 0 0 30px rgba(169, 127, 255, 0.2)';
@@ -226,6 +228,7 @@ export default function Gallery() {
                       alt={item.alt}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      style={{ touchAction: 'none' }}
                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 300px"
                       quality={90}
                     />
@@ -269,6 +272,7 @@ export default function Gallery() {
                           }}
                           src={item.src}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-pointer"
+                          style={{ touchAction: 'none' }}
                           muted
                           loop
                           playsInline

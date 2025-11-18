@@ -118,13 +118,13 @@ export default function Navigation({ isDark, setIsDark }: NavigationProps) {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 overflow-hidden w-full max-w-full">
-      <div className={`mx-2 sm:mx-4 mt-4 rounded-2xl border px-2 sm:px-3 md:px-6 py-2 lg:mx-8 max-w-full ${
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden">
+      <div className={`mx-2 sm:mx-4 mt-4 rounded-2xl border px-2 sm:px-3 md:px-6 py-2 lg:mx-8 ${
         isDark 
           ? 'bg-black/20 backdrop-blur-xl border-white/10 shadow-lg' 
           : 'bg-white/40 backdrop-blur-md border-white/50 shadow-lg'
       }`}>
-        <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-4 min-w-0 w-full">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-4 min-w-0 w-full max-w-full">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity flex-shrink-0 min-w-0 overflow-hidden">
             <Image
