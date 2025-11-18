@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles, Scissors, Palette, Wind } from 'lucide-react';
+import AOS from 'aos';
 
 const services = [
   {
@@ -50,6 +51,18 @@ export default function Services() {
         observer.unobserve(sectionRef.current);
       }
     };
+  }, []);
+
+  // Refresh AOS when component mounts (after lazy loading)
+  useEffect(() => {
+    // Delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && AOS) {
+        AOS.refresh();
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

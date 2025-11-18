@@ -56,6 +56,8 @@ export default function Gallery() {
   const [videoLoading, setVideoLoading] = useState<Set<string>>(new Set());
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState<Set<string>>(new Set());
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const touchUsedRef = useRef<{ id: string; timestamp: number } | null>(null);
 
   // Handle tab change with animation reset
   const handleTabChange = (tabId: TabType) => {
@@ -69,6 +71,7 @@ export default function Gallery() {
       }
     });
     setPlayingVideoId(null);
+    setActiveCardId(null); // Reset active card when switching tabs
 
     // Refresh AOS animations when tab changes
     if (typeof window !== 'undefined' && (window as any).AOS) {
@@ -163,7 +166,9 @@ export default function Gallery() {
             return (
               <div
                 key={item.id}
-                className="group relative overflow-hidden rounded-xl md:rounded-2xl aspect-square transition-shadow duration-300"
+                className={`group relative overflow-hidden rounded-xl md:rounded-2xl aspect-square transition-shadow duration-300 ${
+                  activeCardId === item.id ? 'active' : ''
+                }`}
                 data-aos="fade-up"
                 data-aos-duration="500"
                 data-aos-delay={index * 30}
@@ -178,6 +183,40 @@ export default function Gallery() {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset';
+                  // Only clear activeCardId on mouse leave if it's not a touch device
+                  if (window.matchMedia('(pointer: fine)').matches) {
+                    setActiveCardId(null);
+                  }
+                }}
+                onTouchStart={(e) => {
+                  // Toggle active state on touch for mobile devices
+                  // Only toggle if not clicking on a video element directly
+                  if (item.type === 'image' || (e.target as HTMLElement).tagName !== 'VIDEO') {
+                    setActiveCardId(prev => prev === item.id ? null : item.id);
+                    // Mark that touch was used to prevent onClick from also firing
+                    touchUsedRef.current = { id: item.id, timestamp: Date.now() };
+                    // Clear the ref after a short delay
+                    setTimeout(() => {
+                      if (touchUsedRef.current?.id === item.id) {
+                        touchUsedRef.current = null;
+                      }
+                    }, 300);
+                  }
+                }}
+                onClick={(e) => {
+                  // Skip if this click was triggered by a touch event
+                  if (touchUsedRef.current?.id === item.id && Date.now() - touchUsedRef.current.timestamp < 500) {
+                    return;
+                  }
+                  // For non-touch devices or when clicking on non-video areas, toggle text
+                  // Skip if clicking directly on video element (video handles its own click)
+                  if ((e.target as HTMLElement).tagName === 'VIDEO') {
+                    return;
+                  }
+                  // Only handle click on desktop devices
+                  if (window.matchMedia('(pointer: fine)').matches) {
+                    setActiveCardId(prev => prev === item.id ? null : item.id);
+                  }
                 }}
               >
                 {item.type === 'image' ? (
@@ -190,9 +229,15 @@ export default function Gallery() {
                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 300px"
                       quality={90}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
+                      activeCardId === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`} />
                     <div className="absolute inset-0 flex items-end justify-start p-3 md:p-4">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <div className={`transform transition-all duration-300 ${
+                        activeCardId === item.id 
+                          ? 'translate-y-0 opacity-100' 
+                          : 'translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100'
+                      }`}>
                         <p className="text-white text-xs md:text-sm font-medium drop-shadow-lg">
                           {item.alt}
                         </p>
@@ -399,7 +444,9 @@ export default function Gallery() {
                         )}
                       </>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
+                      activeCardId === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`} />
                     {!videoErrors.has(item.id) && !videoLoading.has(item.id) && (
                       <div 
                         className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
@@ -450,17 +497,23 @@ export default function Gallery() {
                       </div>
                     )}
                     <div className="absolute inset-0 flex items-end justify-start p-3 md:p-4">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <div className={`transform transition-all duration-300 ${
+                        activeCardId === item.id 
+                          ? 'translate-y-0 opacity-100' 
+                          : 'translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100'
+                      }`}>
                         <p className="text-white text-xs md:text-sm font-medium drop-shadow-lg">
                           {item.alt}
                         </p>
-                  </div>
-                </div>
+                      </div>
+                    </div>
                   </>
                 )}
 
                 {/* Glass border effect */}
-                <div className="absolute inset-0 rounded-xl md:rounded-2xl glass pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className={`absolute inset-0 rounded-xl md:rounded-2xl glass pointer-events-none transition-opacity duration-300 ${
+                  activeCardId === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`} />
               </div>
             );
           })}

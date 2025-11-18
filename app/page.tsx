@@ -1,15 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Navigation from '@/components/navigation';
 import Hero from '@/components/hero';
-import Services from '@/components/services';
-import Gallery from '@/components/gallery';
-import Testimonials from '@/components/testimonials';
-import Team from '@/components/team';
-import CTA from '@/components/cta';
-import SocialMedia from '@/components/social-media';
-import Footer from '@/components/footer';
 import Aurora from '@/components/aurora';
 import MobileBottomNav from '@/components/mobile-bottom-nav';
 import QuickActionSheet from '@/components/quick-action-sheet';
@@ -21,6 +15,55 @@ import {
 } from '@/components/transitions';
 import PageLoader from '@/components/page-loader';
 import { Sparkles } from 'lucide-react';
+
+// Loading component for lazy loaded sections
+const SectionLoader = () => (
+  <div className="flex items-center justify-center min-h-[200px] py-12">
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative w-8 h-8">
+        <div className="absolute inset-0 rounded-full border-2 border-primary/20"></div>
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin"></div>
+      </div>
+      <p className="text-sm text-foreground/60">Loading...</p>
+    </div>
+  </div>
+);
+
+// Lazy load components that are below the fold using Next.js dynamic imports
+const Services = dynamic(() => import('@/components/services'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const Gallery = dynamic(() => import('@/components/gallery'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const Testimonials = dynamic(() => import('@/components/testimonials'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const Team = dynamic(() => import('@/components/team'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const CTA = dynamic(() => import('@/components/cta'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const SocialMedia = dynamic(() => import('@/components/social-media'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
+
+const Footer = dynamic(() => import('@/components/footer'), {
+  loading: () => <SectionLoader />,
+  ssr: true,
+});
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
@@ -162,30 +205,44 @@ export default function Home() {
         <div className="relative z-10 bg-transparent">
           <Hero />
         </div>
-        {/* Other sections with transparent background to show Aurora */}
+        {/* Other sections with transparent background to show Aurora - Lazy Loaded */}
         <div className="relative z-10 bg-transparent">
           <SectionTransition variant="fade-up" duration={600} delay={0}>
-            <Services />
+            <Suspense fallback={<SectionLoader />}>
+              <Services />
+            </Suspense>
           </SectionTransition>
           <SectionTransition variant="fade-up" duration={600} delay={0}>
-            <Gallery />
+            <Suspense fallback={<SectionLoader />}>
+              <Gallery />
+            </Suspense>
           </SectionTransition>
           <SectionTransition variant="fade-up" duration={600} delay={0}>
-            <Testimonials />
+            <Suspense fallback={<SectionLoader />}>
+              <Testimonials />
+            </Suspense>
           </SectionTransition>
           <SectionTransition variant="fade-up" duration={600} delay={0}>
-            <Team />
+            <Suspense fallback={<SectionLoader />}>
+              <Team />
+            </Suspense>
           </SectionTransition>
           <SectionTransition variant="fade-up" duration={600} delay={0}>
-            <SocialMedia />
+            <Suspense fallback={<SectionLoader />}>
+              <SocialMedia />
+            </Suspense>
           </SectionTransition>
           <SectionTransition variant="zoom" duration={600} delay={0}>
-            <CTA />
+            <Suspense fallback={<SectionLoader />}>
+              <CTA />
+            </Suspense>
           </SectionTransition>
         </div>
       </main>
       <SectionTransition variant="fade" duration={600}>
-        <Footer />
+        <Suspense fallback={<SectionLoader />}>
+          <Footer />
+        </Suspense>
       </SectionTransition>
 
       {/* Mobile Bottom Navigation */}

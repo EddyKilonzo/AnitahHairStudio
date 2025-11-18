@@ -66,6 +66,10 @@ export default function Hero() {
   const [shuffleIndex, setShuffleIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [focusedServiceIndex, setFocusedServiceIndex] = useState<number | null>(null);
+  const [isBlurred, setIsBlurred] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
+  const lastScrollYRef = useRef(0);
+  const previousRatioRef = useRef(1);
 
   useEffect(() => {
     setMounted(true);
@@ -80,6 +84,63 @@ export default function Hero() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Track scroll direction and apply blur when scrolling up
+  useEffect(() => {
+    if (!mounted || !sectionRef.current) return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const direction = currentScrollY > lastScrollYRef.current ? 'down' : 'up';
+      setScrollDirection(direction);
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    // Initialize scroll position
+    lastScrollYRef.current = window.scrollY;
+
+    // Set up IntersectionObserver to track when hero is leaving view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const currentRatio = entry.intersectionRatio;
+          const previousRatio = previousRatioRef.current;
+          
+          // Get current scroll direction
+          const currentScrollY = window.scrollY;
+          const currentDirection = currentScrollY > lastScrollYRef.current ? 'down' : 'up';
+          lastScrollYRef.current = currentScrollY;
+          
+          // When scrolling up and hero is leaving view (ratio decreasing)
+          if (currentDirection === 'up' && currentRatio < previousRatio && currentRatio < 0.5) {
+            setIsBlurred(true);
+          }
+          // When scrolling up and hero is entering view (ratio increasing)
+          else if (currentDirection === 'up' && currentRatio > previousRatio && currentRatio > 0.3) {
+            setIsBlurred(false);
+          }
+          // When scrolling down, remove blur
+          else if (currentDirection === 'down') {
+            setIsBlurred(false);
+          }
+          
+          previousRatioRef.current = currentRatio;
+        });
+      },
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '0px',
+      }
+    );
+
+    observer.observe(sectionRef.current);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [mounted]);
+
   // Card configurations for shuffling animation
   // Each configuration defines positions for all 3 cards
   // All three cards MUST be visible at all times
@@ -91,9 +152,9 @@ export default function Hero() {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth;
       if (width < 768) {
-        // Mobile: smaller scale and size
-        scale = 0.3;
-        sizeMultiplier = 0.85;
+        // Mobile: increased size for better visibility while staying responsive
+        scale = 0.4;
+        sizeMultiplier = 0.95;
       } else if (width < 1024) {
         // Tablet: medium scale and size
         scale = 0.5;
@@ -332,7 +393,9 @@ export default function Hero() {
     <section 
       ref={sectionRef}
       id="home"
-      className="h-screen flex flex-col pt-16 sm:pt-16 md:pt-20 pb-3 sm:pb-4 md:pb-6 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden"
+      className={`h-screen flex flex-col pt-16 sm:pt-16 md:pt-20 pb-3 sm:pb-4 md:pb-6 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden transition-all duration-500 ease-out ${
+        isBlurred && scrollDirection === 'up' ? 'blur-md opacity-60' : 'blur-0 opacity-100'
+      }`}
     >
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col">
         {/* Top Section - Content and Image */}
@@ -410,7 +473,7 @@ export default function Hero() {
           <div className="relative flex flex-col items-center md:items-start lg:items-start justify-center lg:justify-end lg:pr-0 pt-2 sm:pt-4 md:pt-6 lg:pt-16 px-2 sm:px-4" data-aos="fade-up" data-aos-duration="900" data-aos-delay="300">
             <div 
               ref={imageRef}
-              className="relative w-full max-w-[85%] sm:max-w-[75%] md:max-w-xl lg:max-w-2xl h-[180px] xs:h-[200px] sm:h-[240px] md:h-[320px] lg:h-[480px] xl:h-[520px] 2xl:h-[560px] pointer-events-none lg:pointer-events-auto mx-auto"
+              className="relative w-full max-w-[95%] sm:max-w-[85%] md:max-w-xl lg:max-w-2xl h-[240px] xs:h-[260px] sm:h-[280px] md:h-[320px] lg:h-[480px] xl:h-[520px] 2xl:h-[560px] pointer-events-none lg:pointer-events-auto mx-auto"
               style={{ perspective: '1000px' }}
             >
               {heroImages.map((image, index) => {
@@ -447,8 +510,9 @@ export default function Hero() {
                         fill
                         className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         priority={index === 0}
+                        loading={index === 0 ? 'eager' : 'lazy'}
                         sizes="(max-width: 640px) 95vw, (max-width: 768px) 90vw, (max-width: 1024px) 50vw, 600px"
-                        quality={95}
+                        quality={index === 0 ? 95 : 85}
                         style={{ objectFit: 'cover', objectPosition: '50% 35%' }}
                       />
                       <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none" />
@@ -672,6 +736,7 @@ export default function Hero() {
                 fill
                 className="object-contain"
                 priority
+                loading="eager"
                 sizes="(max-width: 768px) 95vw, 80vw"
               />
             </div>

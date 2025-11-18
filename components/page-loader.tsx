@@ -3,10 +3,10 @@
 import { useEffect, useState, useRef } from 'react';
 
 export default function PageLoader() {
-  const [isLoading, setIsLoading] = useState(false); // Start hidden
+  const [isLoading, setIsLoading] = useState(true); // Start visible
   const [fadeOut, setFadeOut] = useState(false);
-  const isLoadingRef = useRef(false);
-  const LOADING_THRESHOLD = 800; // Only show if loading takes longer than 800ms
+  const isLoadingRef = useRef(true);
+  const LOADING_THRESHOLD = 100; // Show loader immediately (reduced threshold)
 
   useEffect(() => {
     let showTimer: NodeJS.Timeout;
@@ -62,51 +62,50 @@ export default function PageLoader() {
       
       const loadTime = performance.now() - startTime;
       
-      // Only show loader if loading took longer than threshold OR network is slow
-      if (loadTime > LOADING_THRESHOLD || checkNetworkStatus()) {
-        // Page took a while to load, fade out the loader if it was shown
-        if (isLoadingRef.current) {
-          fadeTimer = setTimeout(() => {
-            startFadeOut();
-          }, 300);
-        } else {
-          // Loader wasn't shown yet, don't show it now
-          isLoadingRef.current = false;
-          setIsLoading(false);
-        }
+      // Always fade out the loader when page is loaded
+      if (isLoadingRef.current) {
+        // Ensure minimum display time for smooth UX (at least 500ms)
+        const minDisplayTime = 500;
+        const remainingTime = Math.max(0, minDisplayTime - loadTime);
+        
+        fadeTimer = setTimeout(() => {
+          startFadeOut();
+        }, remainingTime);
       } else {
-        // Page loaded quickly, don't show loader at all
         isLoadingRef.current = false;
         setIsLoading(false);
       }
     };
 
+    // Show loader immediately
+    isLoadingRef.current = true;
+    setIsLoading(true);
+
     // Check if network is slow/offline immediately
     if (checkNetworkStatus()) {
-      // Network is slow, show loader immediately
+      // Network is slow, keep loader visible
       isLoadingRef.current = true;
       setIsLoading(true);
     }
 
+    // Wrapper function for load event
+    const loadHandler = () => {
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        handleLoad();
+      }, 300);
+    };
+
     // Check if page is already loaded
     if (document.readyState === 'complete') {
-      handleLoad();
+      loadHandler();
     } else {
-      // Set timer to show loader if loading takes too long
-      showTimer = setTimeout(() => {
-        const loadTime = performance.now() - startTime;
-        if (loadTime > LOADING_THRESHOLD && !hasStartedFade) {
-          isLoadingRef.current = true;
-          setIsLoading(true);
-        }
-      }, LOADING_THRESHOLD);
-
       // Wait for window load event (includes images)
-      window.addEventListener('load', handleLoad);
+      window.addEventListener('load', loadHandler);
     }
 
     return () => {
-      window.removeEventListener('load', handleLoad);
+      window.removeEventListener('load', loadHandler);
       if (showTimer) clearTimeout(showTimer);
       if (fadeTimer) clearTimeout(fadeTimer);
     };

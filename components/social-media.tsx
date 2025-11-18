@@ -6,6 +6,172 @@ import { WhatsAppIcon } from './icons/whatsapp-icon';
 import { TikTokIcon } from './icons/tiktok-icon';
 import Image from 'next/image';
 
+// Lazy-loaded iframe component for Instagram embeds
+const LazyInstagramEmbed = ({ embedUrl, index, isTabActive }: { embedUrl: string; index: number; isTabActive: boolean }) => {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const iframeRef = useRef<HTMLDivElement>(null);
+  const hasLoadedRef = useRef(false); // Track if embed has been loaded once
+
+  useEffect(() => {
+    // If already loaded, keep it loaded even when tab becomes inactive
+    if (hasLoadedRef.current) {
+      setShouldLoad(true);
+      return;
+    }
+
+    // Only observe if the tab is active
+    if (!isTabActive) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !shouldLoad && !hasLoadedRef.current) {
+            setShouldLoad(true);
+          }
+        });
+      },
+      {
+        rootMargin: '100px', // Start loading 100px before it's visible
+        threshold: 0.1,
+      }
+    );
+
+    if (iframeRef.current) {
+      observer.observe(iframeRef.current);
+    }
+
+    return () => {
+      if (iframeRef.current) {
+        observer.unobserve(iframeRef.current);
+      }
+    };
+  }, [shouldLoad, isTabActive]);
+
+  return (
+    <div ref={iframeRef} className="w-full h-full relative">
+      {shouldLoad ? (
+        <>
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
+              <div className="flex flex-col items-center gap-2">
+                <InstagramIcon className="w-8 h-8 text-primary animate-pulse" />
+                <p className="text-xs text-foreground/60">Loading...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            src={embedUrl}
+            className="w-full h-full border-0"
+            allow="encrypted-media; picture-in-picture; clipboard-write"
+            allowFullScreen
+            scrolling="no"
+            onLoad={() => {
+              setIsLoading(false);
+              hasLoadedRef.current = true; // Mark as loaded
+            }}
+            style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.3s ease-in' }}
+          />
+        </>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-muted">
+          <div className="flex flex-col items-center gap-2">
+            <InstagramIcon className="w-8 h-8 text-primary/50" />
+            <p className="text-xs text-foreground/40">Instagram post</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Lazy-loaded iframe component for TikTok embeds
+const LazyTikTokEmbed = ({ embedUrl, caption, isTabActive }: { embedUrl: string; caption?: string; isTabActive?: boolean }) => {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const iframeRef = useRef<HTMLDivElement>(null);
+  const hasLoadedRef = useRef(false); // Track if embed has been loaded once
+
+  useEffect(() => {
+    // If already loaded, keep it loaded even when tab becomes inactive
+    if (hasLoadedRef.current) {
+      setShouldLoad(true);
+      return;
+    }
+
+    // Only observe if the tab is active (or if isTabActive is not provided, always observe)
+    if (isTabActive === false) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !shouldLoad && !hasLoadedRef.current) {
+            setShouldLoad(true);
+          }
+        });
+      },
+      {
+        rootMargin: '100px',
+        threshold: 0.1,
+      }
+    );
+
+    if (iframeRef.current) {
+      observer.observe(iframeRef.current);
+    }
+
+    return () => {
+      if (iframeRef.current) {
+        observer.unobserve(iframeRef.current);
+      }
+    };
+  }, [shouldLoad, isTabActive]);
+
+  return (
+    <div ref={iframeRef} className="w-full h-full relative">
+      {shouldLoad ? (
+        <>
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse z-10">
+              <div className="flex flex-col items-center gap-2">
+                <TikTokIcon className="w-12 h-12 text-primary animate-pulse" />
+                <p className="text-muted-foreground">Loading...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            src={embedUrl}
+            className="w-full h-full"
+            allow="encrypted-media; picture-in-picture"
+            allowFullScreen
+            onLoad={() => {
+              setIsLoading(false);
+              hasLoadedRef.current = true; // Mark as loaded
+            }}
+            style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.3s ease-in' }}
+          />
+        </>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-muted">
+          <div className="text-center p-6">
+            <TikTokIcon className="w-12 h-12 mx-auto mb-3 text-primary/50" />
+            <p className="text-muted-foreground">TikTok video</p>
+          </div>
+        </div>
+      )}
+      {caption && (
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+          <p className="text-white text-sm font-medium">{caption}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface SocialMediaItem {
   id: string;
   type: 'video' | 'image';
@@ -226,24 +392,13 @@ export default function SocialMedia() {
                 }}
               >
                 {item.type === 'video' && item.embedUrl ? (
-                  <iframe
-                    src={item.embedUrl}
-                    className="w-full h-full"
-                    allow="encrypted-media; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  />
+                  <LazyTikTokEmbed embedUrl={item.embedUrl} caption={item.caption} isTabActive={activeTab === 'tiktok'} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-muted">
                     <div className="text-center p-6">
                       <TikTokIcon className="w-12 h-12 mx-auto mb-3 text-primary" />
                       <p className="text-muted-foreground">Add your TikTok video</p>
                     </div>
-                  </div>
-                )}
-                {item.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                    <p className="text-white text-sm font-medium">{item.caption}</p>
                   </div>
                 )}
               </div>
@@ -271,14 +426,7 @@ export default function SocialMedia() {
                   }}
                 >
                   {item.embedUrl ? (
-                    <iframe
-                      src={item.embedUrl}
-                      className="w-full h-full border-0"
-                      allow="encrypted-media; picture-in-picture; clipboard-write"
-                      loading="lazy"
-                      allowFullScreen
-                      scrolling="no"
-                    />
+                    <LazyInstagramEmbed embedUrl={item.embedUrl} index={index} isTabActive={activeTab === 'instagram'} />
                   ) : item.type === 'image' && item.imageUrl ? (
                     <>
                       <Image
@@ -286,6 +434,7 @@ export default function SocialMedia() {
                         alt={item.caption || 'Instagram post'}
                         fill
                         className="object-cover"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
                         <div className="p-4 w-full">
@@ -360,6 +509,15 @@ export default function SocialMedia() {
             >
               <InstagramIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
               <span>Follow on Instagram</span>
+            </a>
+            <a
+              href="https://www.tiktok.com/@anita.hair.studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full border-2 border-primary bg-transparent text-primary font-semibold hover:bg-primary/10 hover:scale-105 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto max-w-full"
+            >
+              <TikTokIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span>Follow on TikTok</span>
             </a>
             <a
               href="https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt"

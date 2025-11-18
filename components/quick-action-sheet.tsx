@@ -3,6 +3,7 @@
 import { Calendar, Phone, X } from 'lucide-react';
 import { WhatsAppIcon } from './icons/whatsapp-icon';
 import { InstagramIcon } from './icons/instagram-icon';
+import { TikTokIcon } from './icons/tiktok-icon';
 
 interface QuickActionSheetProps {
   isOpen: boolean;
@@ -144,17 +145,26 @@ export default function QuickActionSheet({ isOpen, onClose }: QuickActionSheetPr
           <div className="px-6 pb-6 pt-2 animate-in fade-in slide-in-from-bottom" style={{ animationDelay: '400ms', animationDuration: '500ms' }}>
             <div className="border-t border-white/10 pt-4">
               <p className="text-xs font-medium text-foreground/60 mb-3">Follow Us</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => window.open('https://www.instagram.com/anitahshair_studio1/', '_blank')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 group"
-                >
-                  <InstagramIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-                  <span className="text-sm">Instagram</span>
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => window.open('https://www.instagram.com/anitahshair_studio1/', '_blank')}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 group"
+                  >
+                    <InstagramIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="text-sm">Instagram</span>
+                  </button>
+                  <button
+                    onClick={() => window.open('https://www.tiktok.com/@anita.hair.studio', '_blank')}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-black to-gray-800 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-gray-500/50 hover:scale-105 group"
+                  >
+                    <TikTokIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="text-sm">TikTok</span>
+                  </button>
+                </div>
                 <button
                   onClick={() => window.open('https://chat.whatsapp.com/GGSXLi8O8b6BDtoKee6pvC?mode=wwt', '_blank')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50 hover:scale-105 group"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white font-medium min-h-[52px] active:scale-95 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50 hover:scale-105 group"
                 >
                   <WhatsAppIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
                   <span className="text-sm">WhatsApp Group</span>
